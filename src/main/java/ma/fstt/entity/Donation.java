@@ -2,6 +2,8 @@ package ma.fstt.entity;
 
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -17,6 +19,7 @@ public class Donation {
 	@GeneratedValue(strategy = GenerationType.UUID)
 	private UUID id;
 
+	@JsonBackReference
 	@ManyToOne(cascade = CascadeType.ALL)
 	@JoinColumn(name = "assistance_offer_id")
 	private AssistanceOffer assistanceOffer;

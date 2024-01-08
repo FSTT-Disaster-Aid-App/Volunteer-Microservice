@@ -5,11 +5,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import ma.fstt.entity.AidType;
 import ma.fstt.entity.AssistanceOffer;
+import ma.fstt.entity.Donation;
 import ma.fstt.repository.AssistanceOfferRepository;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 @RestController
@@ -23,6 +27,7 @@ public class AssistanceOfferController {
 	public ResponseEntity<Map<String, Object>> getAllAssistanceOffers() {
 		try {
 			List<AssistanceOffer> allAssistanceOffers = assistanceOfferRepository.findAll();
+
 			return ResponseEntity.ok(Map.of("data", allAssistanceOffers));
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -44,6 +49,19 @@ public class AssistanceOfferController {
 	public ResponseEntity<Map<String, Object>> createAssistanceOffer(@RequestBody AssistanceOffer assistanceOffer) {
 		try {
 			AssistanceOffer savedAssistanceOffer = assistanceOfferRepository.save(assistanceOffer);
+			Set<Donation> donations = savedAssistanceOffer.getDonations();
+			donations.forEach(donation -> {
+				Set<AssistanceOffer> assistanceOffers = new HashSet<>();
+				assistanceOffers.add(savedAssistanceOffer);
+				donation.setAssistanceOffer(savedAssistanceOffer);
+			});
+			Set<AidType> aidTypes = savedAssistanceOffer.getAidTypes();
+			aidTypes.forEach(aidType -> {
+				Set<AssistanceOffer> assistanceOffers = new HashSet<>();
+				assistanceOffers.add(savedAssistanceOffer);
+				aidType.setAssistanceOffers(assistanceOffers);
+			});
+
 			return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("data", savedAssistanceOffer));
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

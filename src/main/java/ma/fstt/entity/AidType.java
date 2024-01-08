@@ -3,6 +3,8 @@ package ma.fstt.entity;
 import java.util.Set;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -22,6 +24,7 @@ public class AidType {
 	@Column(nullable = false)
 	private String name;
 
+	@JsonBackReference
 	@ManyToMany(cascade = CascadeType.ALL)
 	@JoinTable(name = "assistance_offer_aid_type", joinColumns = @JoinColumn(name = "aid_type_id"), inverseJoinColumns = @JoinColumn(name = "assistance_offer_id"))
 	private Set<AssistanceOffer> assistanceOffers;
