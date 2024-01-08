@@ -8,7 +8,9 @@ import org.springframework.web.bind.annotation.*;
 import ma.fstt.entity.AidType;
 import ma.fstt.entity.AssistanceOffer;
 import ma.fstt.entity.Donation;
+import ma.fstt.repository.AidTypeRepository;
 import ma.fstt.repository.AssistanceOfferRepository;
+import ma.fstt.repository.DonationRepository;
 
 import java.util.HashSet;
 import java.util.List;
@@ -22,6 +24,10 @@ public class AssistanceOfferController {
 
 	@Autowired
 	private AssistanceOfferRepository assistanceOfferRepository;
+	@Autowired
+	private DonationRepository donationRepository;
+	@Autowired
+	private AidTypeRepository aidTypeRepository;
 
 	@GetMapping
 	public ResponseEntity<Map<String, Object>> getAllAssistanceOffers() {
@@ -48,24 +54,24 @@ public class AssistanceOfferController {
 	@PostMapping
 	public ResponseEntity<Map<String, Object>> createAssistanceOffer(@RequestBody AssistanceOffer assistanceOffer) {
 		try {
-			AssistanceOffer savedAssistanceOffer = assistanceOfferRepository.save(assistanceOffer);
-			Set<Donation> donations = savedAssistanceOffer.getDonations();
-			donations.forEach(donation -> {
-				Set<AssistanceOffer> assistanceOffers = new HashSet<>();
-				assistanceOffers.add(savedAssistanceOffer);
-				donation.setAssistanceOffer(savedAssistanceOffer);
-			});
-			Set<AidType> aidTypes = savedAssistanceOffer.getAidTypes();
+
+			// Set the association in Donations and save
+			Set<Donation> donations = assistanceOffer.getDonations();
+			donations.forEach(donation -> donation.setAssistanceOffer(assistanceOffer));
+
+			// Set the association in AidTypes and save
+			Set<AidType> aidTypes = assistanceOffer.getAidTypes();
 			aidTypes.forEach(aidType -> {
 				Set<AssistanceOffer> assistanceOffers = new HashSet<>();
-				assistanceOffers.add(savedAssistanceOffer);
+				assistanceOffers.add(assistanceOffer);
 				aidType.setAssistanceOffers(assistanceOffers);
 			});
 
+			AssistanceOffer savedAssistanceOffer = assistanceOfferRepository.save(assistanceOffer);
 			return ResponseEntity.status(HttpStatus.CREATED).body(Map.of("data", savedAssistanceOffer));
 		} catch (Exception e) {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-					.body(Map.of("error", "Error while processing the request"));
+					.body(Map.of("error", e.getMessage()));
 		}
 	}
 
