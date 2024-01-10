@@ -5,7 +5,7 @@ pipeline {
    }
 
   environment {
-    dockerimagename = "ayga/gateway-app"
+    dockerimagename = "ayga/volunteer-app"
     dockerImage = ""
   }
 
@@ -15,8 +15,7 @@ pipeline {
 
     stage('Checkout Source') {
       steps {
-				sh 'git config --global core.compression 0'
-        git url: 'https://github.com/FSTT-Disaster-Aid-App/Gateway-Microservice.git', branch: 'main'
+        git url: 'https://github.com/FSTT-Disaster-Aid-App/Volunteer-Microservice.git', branch: 'main'
 				sh 'mvn clean package'
       }
     }
